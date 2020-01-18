@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  proxy:
+    depends_on:
+      - nexus
+    image: "httpd:2.4"
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./conf/:/usr/local/apache2/conf/
+      - ./certs/:/etc/pki/
+    restart: "always"
+    environment:
+      TARGET_DOMAIN: nexus
+      TARGET_DOMAIN_PORT: 8081
+      SOURCE_DOMAIN: proxy
+      SOURCE_DOMAIN_PORT: 8082
+    networks:
+      - nexus_network
+
+  nexus:
+    image: sonatype/nexus3:3.19.1
+    ports:
+      - "8081:8081"
+    restart: "always"
+    volumes:
+      - ./nexus-data:/nexus-data
+    networks:
+      - nexus_network
+
+networks:
+  nexus_network:
